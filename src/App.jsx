@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function ArtistList({ artists, size, fontSize }) {
   const getSizeClass = () => {
     switch (size) {
@@ -111,13 +114,14 @@ function App() {
       setTopArtists(data.items);
       setTopSongs(songsData.items);
     } else {
-      alert('You must login!');
+      toast.error("You must sign in!")
     }
     console.log(topSongs)
   };
 
   return (
     <div className="">
+      <ToastContainer />
       <h1 className="text-5xl font-bold mt-10 text-center font-mono">BlocIFY!</h1>
       <p className="text-sm text-gray-500 font-thin text-center mb-10">
         Made by <a href="https://malsthedev.vercel.app" className="font-bold underline">Mals</a> :)
