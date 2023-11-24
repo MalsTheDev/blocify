@@ -4,6 +4,8 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import spotifyLogo from '/spotify_logo.png'
+
 function ArtistList({ artists, size, fontSize }) {
   const getSizeClass = () => {
     switch (size) {
@@ -123,9 +125,10 @@ function App() {
     <div className="">
       <ToastContainer />
       <h1 className="text-5xl font-bold mt-10 text-center font-mono">BlocIFY!</h1>
-      <p className="text-sm text-gray-500 font-thin text-center mb-10">
+      <p className="text-sm text-gray-500 font-thin text-center">
         Made by <a href="https://malsthedev.vercel.app" className="font-bold underline">Mals</a> :)
       </p>
+      <img src={spotifyLogo} alt="" className='h-16 w-auto mx-auto my-5' />
       <div className="flex items-center justify-center m-5">
         {!token ? (
           <a
