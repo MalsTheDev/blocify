@@ -1,0 +1,161 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+function ArtistList({ artists, size, fontSize }) {
+  const getSizeClass = () => {
+    switch (size) {
+      case '50%':
+        return 'w-[40rem]';
+      case '33.333%':
+        return 'w-[26.6666rem]';
+      case '20%':
+        return 'w-[16rem]';
+      case '10%':
+        return 'w-[10rem]';
+      case '5%':
+        return 'w-[5rem]';
+      default:
+        return 'w-full';
+    }
+  };
+
+  return (
+    <div className="flex justify-center">
+      {artists.map((artist, index) => (
+        <a key={index} href={artist.external_urls.spotify} className={`${getSizeClass()} group relative`}>
+        <img src={artist.images[0].url} alt="" className="w-full h-full object-cover" />
+        <div className={`flex font-bold group-hover:opacity-100 text-${fontSize} opacity-0 absolute inset-0 items-center justify-center bg-black bg-opacity-75 text-white text-center transition-all`}>
+            {size == '50%' ? index + 1 : size == '33.333%' ? index + 3 : size == '20%' ? index + 5 + 1 : ''}. {artist.name}
+        </div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function TracksList({ topTracks }) {
+  return (
+    <div className='flex flex-col text-center text-white my-12'>
+      <h1 className='text-xl m-2 xl:text-2xl'>Your top tracks:</h1>
+      {topTracks.map((track, index) => {
+        return (
+          <a href={track.external_urls.spotify} className='text-xl underline underline-offset-2 my-1 xl:text-4xl'>{index + 1}. {track.name}</a>
+        )
+      })}
+    </div>
+  )
+}
+
+function App() {
+  const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+  const REDIRECT_URI = 'http://localhost:5173';
+  const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
+  const RESPONSE_TYPE = 'token';
+
+  const [token, setToken] = useState('');
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    let token = window.localStorage.getItem('token');
+
+    if (!token && hash) {
+      token = hash.substring(1).split('&').find((elem) => elem.startsWith('access_token')).split('=')[1];
+
+      window.location.hash = '';
+      window.localStorage.setItem('token', token);
+    }
+
+    setToken(token);
+  }, []);
+
+  const getName = async (e) => {
+    e.preventDefault()
+
+    if(token) {
+      const { userData } = await axios.get('https://api.spotify.com/v1/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      setUsername(userData.items)
+    }
+  }
+
+  const logout = () => {
+    setToken('');
+    window.localStorage.removeItem('token');
+    window.location.reload(false);
+  };
+
+  const [topArtists, setTopArtists] = useState([]);
+  const [from, setFrom] = useState('long_term');
+  const [topSongs, setTopSongs] = useState([])
+
+  const getTopArtists = async (e) => {
+    e.preventDefault();
+    if (token) {
+      const { data } = await axios.get(`https://api.spotify.com/v1/me/top/artists?time_range=${from}&limit=10`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const { data: songsData } = await axios.get(`https://api.spotify.com/v1/me/top/tracks?time_range=${from}&limit=20`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      setTopArtists(data.items);
+      setTopSongs(songsData.items);
+    } else {
+      alert('You must login!');
+    }
+    console.log(topSongs)
+  };
+
+  return (
+    <div className="">
+      <h1 className="text-5xl font-bold mt-10 text-center font-mono">BlocIFY!</h1>
+      <p className="text-sm text-gray-500 font-thin text-center mb-10">
+        Made by <a href="https://malsthedev.vercel.app" className="font-bold underline">Mals</a> :)
+      </p>
+      <div className="flex items-center justify-center m-5">
+        {!token ? (
+          <a
+            href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=user-top-read`}
+            className="text-2xl border-2 text-green-400 border-green-400 px-2 py-1 rounded-xl hover:text-white hover:bg-green-400 transition-all"
+          >
+            Login to Spotify
+          </a>
+        ) : (
+          <button onClick={logout} className="text-xl border-2 border-green-400 text-green-400 px-2 py-1 rounded-xl hover:text-white hover:bg-green-400 transition-all">
+            Logout
+          </button>
+        )}
+      </div>
+      <div className="flex items-center justify-center m-10">
+        <button onClick={getTopArtists} className="p-2 text-2xl rounded-xl bg-green-400 text-white">
+          Generate the Block
+        </button>
+      </div>
+      <h1 className='text-xl font-bold text-center my-5'>Time</h1>
+      <div className='flex items-center space-x-5 justify-center mb-5'>
+        <button onClick={() => setFrom('long_term')} className={`${from == 'long_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>All time</button>
+        <button onClick={() => setFrom('medium_term')} className={`${from == 'medium_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>6 months</button>
+        <button onClick={() => setFrom('short_term')} className={`${from == 'short_term' ? 'bg-green-500': 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>Last month</button>
+      </div>
+      <div className={`flex-col justify-center w-[80vw] mx-auto md:w-1/2 my-10 p-12 ${topArtists.length > 0 ? 'flex' : 'hidden'} rounded-3xl bg-green-400`}>
+        <h1 className='text-2xl text-center mb-5 text-white'>Your top artists:</h1>
+        <ArtistList artists={topArtists.slice(0, 2)} size="50%" fontSize={'text-lg md:text-xl'} />
+        <ArtistList artists={topArtists.slice(2, 5)} size="33.333%" fontSize={'md:text-lg'} />
+        <ArtistList artists={topArtists.slice(5, 10)} size="20%" fontSize={'sm md:text-md'} />
+        <TracksList topTracks={topSongs} />
+      </div>
+    </div>
+  );
+}
+
+export default App;
