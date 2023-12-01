@@ -40,11 +40,11 @@ function ArtistList({ artists, size, fontSize }) {
 
 function TracksList({ topTracks }) {
   return (
-    <div className='flex flex-col text-center text-white my-12'>
-      <h1 className='text-xl m-2 xl:text-2xl'>Your top tracks:</h1>
+    <div className='flex flex-col text-center text-white my-5 xl:my-12'>
+      <h1 className='text-2xl font-semibold m-2'>Your top tracks:</h1>
       {topTracks.map((track, index) => {
         return (
-          <a href={track.external_urls.spotify} className='text-xl underline underline-offset-2 my-1 xl:text-4xl'>{index + 1}. {track.name}</a>
+          <a key={track.name} href={track.external_urls.spotify} className='text-2xl underline underline-offset-2 my-1 xl:text-4xl hover:scale-105 transition-all'>{index + 1}. {track.name}</a>
         )
       })}
     </div>
@@ -53,7 +53,7 @@ function TracksList({ topTracks }) {
 
 function App() {
   const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-  const REDIRECT_URI = 'https://blocify.vercel.app/';
+  const REDIRECT_URI = 'https://blocify.vercel.app';
   const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
   const RESPONSE_TYPE = 'token';
 
@@ -118,7 +118,6 @@ function App() {
     } else {
       toast.error("You must sign in!")
     }
-    console.log(topSongs)
   };
 
   return (
@@ -154,11 +153,13 @@ function App() {
         <button onClick={() => setFrom('medium_term')} className={`${from == 'medium_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>6 months</button>
         <button onClick={() => setFrom('short_term')} className={`${from == 'short_term' ? 'bg-green-500': 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>Last month</button>
       </div>
-      <div className={`flex-col justify-center w-[80vw] mx-auto md:w-1/2 my-10 p-12 ${topArtists.length > 0 ? 'flex' : 'hidden'} rounded-3xl bg-green-400`}>
+      <div className={`flex-col justify-center w-[90vw] mx-auto md:w-1/2 my-10 p-5 ${topArtists.length > 0 ? 'flex' : 'hidden'} rounded-3xl bg-green-400`}>
         <h1 className='text-2xl text-center mb-5 text-white'>Your top artists:</h1>
-        <ArtistList artists={topArtists.slice(0, 2)} size="50%" fontSize={'text-lg md:text-xl'} />
-        <ArtistList artists={topArtists.slice(2, 5)} size="33.333%" fontSize={'md:text-lg'} />
-        <ArtistList artists={topArtists.slice(5, 10)} size="20%" fontSize={'sm md:text-md'} />
+        <div className='m-5'>
+          <ArtistList artists={topArtists.slice(0, 2)} size="50%" fontSize={'text-lg md:text-xl'} />
+          <ArtistList artists={topArtists.slice(2, 5)} size="33.333%" fontSize={'md:text-lg'} />
+          <ArtistList artists={topArtists.slice(5, 10)} size="20%" fontSize={'sm md:text-md'} />
+        </div>
         <TracksList topTracks={topSongs} />
       </div>
     </div>
