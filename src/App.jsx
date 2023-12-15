@@ -53,7 +53,7 @@ function TracksList({ topTracks }) {
 
 function App() {
   const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-  const REDIRECT_URI = 'https://blocify.vercel.app/';
+  const REDIRECT_URI = 'http://localhost:5173';
   const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
   const RESPONSE_TYPE = 'token';
 
@@ -63,6 +63,10 @@ function App() {
   useEffect(() => {
     const hash = window.location.hash;
     let token = window.localStorage.getItem('token');
+
+    if(token) {
+      window.localStorage.removeItem('token')
+    }
 
     if (!token && hash) {
       token = hash.substring(1).split('&').find((elem) => elem.startsWith('access_token')).split('=')[1];
@@ -142,20 +146,20 @@ function App() {
           </button>
         )}
       </div>
+      <h1 className='text-xl font-bold text-center my-5'>Time</h1>
+      <div className='flex items-center space-x-5 justify-center mb-5'>
+        <button onClick={() => {setFrom('long_term')}} className={`${from == 'long_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>All time</button>
+        <button onClick={() => {setFrom('medium_term')}} className={`${from == 'medium_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>6 months</button>
+        <button onClick={() => {setFrom('short_term')}} className={`${from == 'short_term' ? 'bg-green-500': 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>Last month</button>
+      </div>
       <div className="flex items-center justify-center m-10">
         <button onClick={getTopArtists} className="p-2 text-2xl rounded-xl bg-green-400 text-white">
           Generate the Block
         </button>
       </div>
-      <h1 className='text-xl font-bold text-center my-5'>Time</h1>
-      <div className='flex items-center space-x-5 justify-center mb-5'>
-        <button onClick={() => setFrom('long_term')} className={`${from == 'long_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>All time</button>
-        <button onClick={() => setFrom('medium_term')} className={`${from == 'medium_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>6 months</button>
-        <button onClick={() => setFrom('short_term')} className={`${from == 'short_term' ? 'bg-green-500': 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>Last month</button>
-      </div>
       <div className={`flex-col justify-center w-[90vw] mx-auto md:w-1/2 my-10 p-5 ${topArtists.length > 0 ? 'flex' : 'hidden'} rounded-3xl bg-green-400`}>
         <h1 className='text-2xl text-center mb-5 text-white'>Your top artists:</h1>
-        <div className='m-5'>
+        <div className='m-2 md:m-5'>
           <ArtistList artists={topArtists.slice(0, 2)} size="50%" fontSize={'text-lg md:text-xl'} />
           <ArtistList artists={topArtists.slice(2, 5)} size="33.333%" fontSize={'md:text-lg'} />
           <ArtistList artists={topArtists.slice(5, 10)} size="20%" fontSize={'sm md:text-md'} />
