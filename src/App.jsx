@@ -29,7 +29,7 @@ function ArtistList({ artists, size, fontSize }) {
       {artists.map((artist, index) => (
         <a key={index} href={artist.external_urls.spotify} className={`${getSizeClass()} group relative`}>
         <img src={artist.images[0].url} alt="" className="w-full h-full object-cover" />
-        <div className={`flex font-bold group-hover:opacity-100 text-${fontSize} opacity-0 absolute inset-0 items-center justify-center bg-black bg-opacity-75 text-white text-center transition-all`}>
+        <div className={`flex font-bold text-${fontSize} opacity-0 absolute inset-0 items-center justify-center bg-black bg-opacity-75 text-white text-center transition-all`}>
             {size == '50%' ? index + 1 : size == '33.333%' ? index + 3 : size == '20%' ? index + 5 + 1 : ''}. {artist.name}
         </div>
         </a>
@@ -53,7 +53,7 @@ function TracksList({ topTracks }) {
 
 function App() {
   const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-  const REDIRECT_URI = 'https://blocify.vercel.app/';
+  const REDIRECT_URI = 'http://localhost:5173';
   const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
   const RESPONSE_TYPE = 'token';
 
@@ -78,19 +78,6 @@ function App() {
     setToken(token);
   }, []);
 
-  const getName = async (e) => {
-    e.preventDefault()
-
-    if(token) {
-      const { userData } = await axios.get('https://api.spotify.com/v1/me', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-
-      setUsername(userData.items)
-    }
-  }
 
   const logout = () => {
     setToken('');
@@ -119,15 +106,13 @@ function App() {
   
       setTopArtists(data.items);
       setTopSongs(songsData.items);
-    } else {
-      toast.error("You must sign in!")
     }
   };
 
   return (
-    <div className="">
+    <div className="bg-black min-h-screen my-0">
       <ToastContainer />
-      <h1 className="text-5xl font-bold mt-10 text-center font-mono">BlocIFY!</h1>
+      <h1 className="text-5xl font-bold mt-10 text-center text-white font-mono">BlocIFY!</h1>
       <p className="text-sm text-gray-500 font-thin text-center">
         Made by <a href="https://malsthedev.vercel.app" className="font-bold underline">Mals</a> :)
       </p>
@@ -136,28 +121,34 @@ function App() {
         {!token ? (
           <a
             href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=user-top-read`}
-            className="text-2xl border-2 text-green-400 border-green-400 px-2 py-1 rounded-xl hover:text-white hover:bg-green-400 transition-all"
+            className="text-2xl border-2 text-green-400 border-green-400 px-2 py-1 rounded-xl hover:text-white hover:bg-green-500 transition-all"
           >
             Login to Spotify
           </a>
         ) : (
-          <button onClick={logout} className="text-xl border-2 border-green-400 text-green-400 px-2 py-1 rounded-xl hover:text-white hover:bg-green-400 transition-all">
+          <button onClick={logout} className="text-xl border-2 border-green-400 text-green-400 px-2 py-1 rounded-xl hover:text-white hover:bg-green-500 transition-all">
             Logout
           </button>
         )}
       </div>
-      <h1 className='text-xl font-bold text-center my-5'>Time</h1>
-      <div className='flex items-center space-x-5 justify-center mb-5'>
-        <button onClick={() => {setFrom('long_term')}} className={`${from == 'long_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>All time</button>
-        <button onClick={() => {setFrom('medium_term')}} className={`${from == 'medium_term' ? 'bg-green-500' : 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>6 months</button>
-        <button onClick={() => {setFrom('short_term')}} className={`${from == 'short_term' ? 'bg-green-500': 'bg-green-400'} text-xl p-2 text-white rounded-xl`}>Last month</button>
+      <div className={`${token ? 'block' : 'hidden'}`}>
+        <h1 className='text-xl font-bold text-center my-5 text-white'>Select time period:</h1>
+        <div className='flex items-center space-x-5 justify-center mb-5'>
+          <button onClick={(e) => {
+              setFrom('long_term')
+              getTopArtists(e)
+            }} className={`${from == 'long_term' ? 'bg-green-600' : 'bg-green-500'} text-xl p-2 text-white rounded-xl`}>All time</button>
+          <button onClick={(e) => {
+              setFrom('medium_term')
+              getTopArtists(e)
+            }} className={`${from == 'medium_term' ? 'bg-green-600' : 'bg-green-500'} text-xl p-2 text-white rounded-xl`}>6 months</button>
+          <button onClick={(e) => {
+              setFrom('short_term')
+              getTopArtists(e)
+            }} className={`${from == 'short_term' ? 'bg-green-600': 'bg-green-500'} text-xl p-2 text-white rounded-xl`}>Last month</button>
+        </div>
       </div>
-      <div className="flex items-center justify-center m-10">
-        <button onClick={getTopArtists} className="p-2 text-2xl rounded-xl bg-green-400 text-white">
-          Generate the Block
-        </button>
-      </div>
-      <div className={`flex-col justify-center w-[90vw] mx-auto md:w-1/2 my-10 p-5 ${topArtists.length > 0 ? 'flex' : 'hidden'} rounded-3xl bg-green-400`}>
+      <div className={`flex-col justify-center w-[90vw] mx-auto md:w-1/2 my-10 p-5 ${topArtists.length > 0 ? 'flex' : 'hidden'} rounded-3xl bg-green-500`}>
         <h1 className='text-2xl text-center mb-5 text-white'>Your top artists:</h1>
         <div className='m-2 md:m-5'>
           <ArtistList artists={topArtists.slice(0, 2)} size="50%" fontSize={'text-lg md:text-xl'} />
