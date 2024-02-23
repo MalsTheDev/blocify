@@ -4,6 +4,8 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { Analytics } from "@vercel/analytics/react"
+
 import spotifyLogo from '/spotify_logo.png'
 
 function ArtistList({ artists, size, fontSize }) {
