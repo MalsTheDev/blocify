@@ -53,7 +53,7 @@ function TracksList({ topTracks }) {
 
 function App() {
   const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-  const REDIRECT_URI = 'https://blocify.vercel.app';
+  const REDIRECT_URI = 'http://localhost:5173';
   const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
   const RESPONSE_TYPE = 'token';
 
@@ -131,22 +131,20 @@ function App() {
           </button>
         )}
       </div>
-      <div className={`${token ? 'block' : 'hidden'}`}>
+      <div className={`${token ? 'flex' : 'hidden'} items-center flex-col`}>
         <h1 className='text-xl font-bold text-center my-5 text-white'>Select time period:</h1>
         <div className='flex items-center space-x-5 justify-center mb-5'>
-          <button onClick={(e) => {
+          <button onClick={() => {
               setFrom('long_term')
-              getTopArtists(e)
             }} className={`${from == 'long_term' ? 'bg-green-700' : 'bg-green-500'} text-xl p-2 text-white rounded-xl hover:bg-green-700 transition-all`}>All time</button>
-          <button onClick={(e) => {
+          <button onClick={() => {
               setFrom('medium_term')
-              getTopArtists(e)
             }} className={`${from == 'medium_term' ? 'bg-green-700' : 'bg-green-500'} text-xl p-2 text-white rounded-xl hover:bg-green-700 transition-all`}>6 months</button>
-          <button onClick={(e) => {
+          <button onClick={() => {
               setFrom('short_term')
-              getTopArtists(e)
             }} className={`${from == 'short_term' ? 'bg-green-700': 'bg-green-500'} text-xl p-2 text-white rounded-xl hover:bg-green-700 transition-all`}>Last month</button>
         </div>
+        <button className='text-white px-3 py-2 bg-green-500 rounded-xl text-2xl my-5' onClick={(e) => getTopArtists(e)}>Generate</button>
       </div>
       <div className={`flex-col max-w-[768px] justify-center w-[90vw] mx-auto md:w-1/2 my-10 p-5 ${topArtists.length > 0 ? 'flex' : 'hidden'} rounded-3xl bg-green-500`}>
         <h1 className='text-2xl text-center mb-5 text-white'>Your top artists:</h1>
