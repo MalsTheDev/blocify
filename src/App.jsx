@@ -157,6 +157,7 @@ function App() {
         </div>
         <TracksList topTracks={topSongs} />
       </div>
+      <Analytics />
     </div>
   );
 }
